@@ -1,0 +1,85 @@
+Design database for Zen class programme
+users
+codekata
+attendance
+topics
+tasks
+company_drives
+mentors
+
+db.createCollection("users")
+db.createCollection("codekata")
+db.createCollection("attendance")
+db.createCollection("topics")
+db.createCollection("tasks")
+db.createCollection("company_drives")
+db.createCollection("mentors")
+
+db.users.insert({ name: "John Doe", email: "johndoe@example.com", age: 25 })
+db.users.insert({ name: "Jane Smith", email: "janesmith@example.com", age: 22 })
+db.users.insert({ name: "Bob Johnson", email: "bobjohnson@example.com", age: 28 })
+
+db.codekata.insert({ user: "John Doe", problems_solved: 10 })
+db.codekata.insert({ user: "Jane Smith", problems_solved: 15 })
+db.codekata.insert({ user: "Bob Johnson", problems_solved: 20 })
+
+db.attendance.insert({ user: "John Doe", date: ISODate("2020-10-01"), status: "present" })
+db.attendance.insert({ user: "Jane Smith", date: ISODate("2020-10-01"), status: "absent" })
+db.attendance.insert({ user: "Bob Johnson", date: ISODate("2020-10-01"), status: "present" })
+
+db.topics.insert({ name: "JavaScript", month: "October" })
+db.topics.insert({ name: "Python", month: "October" })
+db.topics.insert({ name: "Java", month: "October" })
+
+db.tasks.insert({ name: "Project 1", month: "October" })
+db.tasks.insert({ name: "Project 2", month: "October" })
+db.tasks.insert({ name: "Project 3", month: "October" })
+
+db.company_drives.insert({ name: "Google", date: ISODate("2020-10-15") })
+db.company_drives.insert({ name: "Microsoft", date: ISODate("2020-10-20") })
+db.company_drives.insert({ name: "Amazon", date: ISODate("2020-10-25") })
+
+db.mentors.insert({ name: "Mentor 1", mentee_count: 10 })
+db.mentors.insert({ name: "Mentor 2", mentee_count: 15 })
+db.mentors.insert({ name: "Mentor 3", mentee_count: 20 })
+
+1. Find all the topics and tasks which are thought in the month of October
+   db.topics.find({month: "October"})
+   db.tasks.find({month: "October"})
+   
+2. Find all the company drives which appeared between 15 oct-2020 and 31-oct-2020
+   db.company_drives.find({date: {$gte: ISODate("2020-10-15"), $lte: ISODate("2020-10-31")}})
+   
+3. Find all the company drives and students who are appeared for the placement.
+   db.company_drives.find({appeared: true}).join("users")
+   
+4. Find the number of problems solved by the user in codekata
+   db.codekata.aggregate([
+    {
+        $group: {
+            _id: "$user",
+            problems_solved: { $sum: "$problems_solved" }
+        }
+    }
+   ])
+
+   
+5. Find all the mentors with who has the mentee's count more than 15
+   db.mentors.find({mentee_count: {$gt: 15}})
+   
+6. Find the number of users who are absent and task is not submitted  between 15 oct-2020 and 31-oct-2020
+   db.attendance.aggregate([
+    {
+        $match: {
+            status: "absent",
+            date: {$gte: ISODate("2020-10-15"), $lte: ISODate("2020-10-31")}
+        }
+    },
+    {
+        $group: {
+            _id: "$user",
+            count: { $sum: 1 }
+        }
+    }
+   ])
+
